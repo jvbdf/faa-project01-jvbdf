@@ -1223,3 +1223,91 @@ These results are consistent with the idea that different learning approaches ha
 For this experiment, the relatively simple CategoricalNB provided the best balance under the specified classification costs. However, its high false-positive rate, imperfect probability calibration and the small dataset remain important limitations.
 
 The main conclusion is that **the most complex or computationally expensive learner is not necessarily the most appropriate one**. Understanding how each learner uses the data, and which errors it makes, is more informative than comparing their final scores alone.
+
+## 6. Reproducibility
+
+The experiment was implemented in Python and uses fixed random seeds to make the results reproducible. The recorded execution environment is shown in Table 11.
+
+| Component | Version |
+|---|---|
+| Python | 3.13.7 |
+| NumPy | 2.3.5 |
+| scikit-learn | 1.8.0 |
+| Polars | 1.44.2 |
+| pyBlindOpt | 0.5.0 |
+
+*Table 11: Python and library versions recorded during the experiment.*
+
+The dependencies are listed in `requirements.txt`. The hyperparameter search spaces and random seed are defined in `src/config.py`, while the training and evaluation procedures are implemented in the `src/` directory.
+
+**Running the experiment**
+
+The following commands can be executed from the project root. On Windows, a Python virtual environment can be created and activated using PowerShell:
+
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+The complete experiment can then be executed using:
+
+```powershell
+python main.py
+```
+
+This runs the five learners and the two baselines using Nested Stratified Cross-Validation. The models are evaluated using the same outer folds, with the random seed fixed at `106078`.
+
+The recorded execution took approximately 204.55 seconds. Execution time may vary depending on the computer and installed libraries.
+
+**Generated results**
+
+The experiment saves the following files in the `results/` directory:
+
+| File | Contents |
+|---|---|
+| `fold_results.csv` | Selected hyperparameters, thresholds, metrics and execution times for each outer fold |
+| `model_summary.csv` | Mean and sample standard deviation of the evaluation metrics |
+| `predictions.csv` | Actual classes and predictions for each outer test observation |
+| `baselines.csv` | Performance of Always Good and Always Bad on each outer fold |
+| `experiment_config.json` | Random seed, cross-validation settings, hyperparameter search spaces and library versions |
+
+The saved results allow the reported costs, confusion matrices and other evaluation metrics to be checked without training the models again.
+
+**Generating the figures**
+
+The figures used in the report can be regenerated using the scripts provided in the `tests/` directory:
+
+```powershell
+python -m tests.plot_results
+python -m tests.plot_dataset_figures
+python -m tests.plot_model_explanations
+python -m tests.section5_plots
+```
+
+These scripts generate the exploratory plots, learner visualisations, model comparisons, confusion matrices and additional diagnostic figures.
+
+The CategoricalNB calibration plot can also be regenerated using:
+
+```powershell
+python -m tests.check_bayesian
+python -m tests.check_calibration
+```
+
+The first command generates the CategoricalNB predictions required by the calibration script. This is a separate diagnostic run and does not modify the official results of the five learners.
+
+Most figures are saved in `results/figures/`. The calibration plot is saved as `results/bayesian_calibration.png`.
+
+The experimental pipeline diagram (`results/figures/pipeline.png`) is included directly in the repository.
+
+**Running the tests**
+
+The automated tests can be executed using:
+
+```powershell
+python -m pytest tests/ -v
+```
+
+These tests are intended to verify the main evaluation functions, data preprocessing and experimental procedures.
+
+The experiment uses fixed seeds, but minor differences in execution time and numerical results may occur across hardware or library environments. The reported results correspond to the recorded execution and the configuration saved in `results/experiment_config.json`.
