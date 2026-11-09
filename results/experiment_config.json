@@ -1,0 +1,236 @@
+{
+    "seed": 106078,
+    "dataset": "german_credit.csv.zst",
+    "observations": 1000,
+    "outer_folds": 5,
+    "inner_folds": 4,
+    "cost_fp": 1,
+    "cost_fn": 5,
+    "thresholds": [
+        0.0,
+        0.01,
+        0.02,
+        0.03,
+        0.04,
+        0.05,
+        0.06,
+        0.07,
+        0.08,
+        0.09,
+        0.1,
+        0.11,
+        0.12,
+        0.13,
+        0.14,
+        0.15,
+        0.16,
+        0.17,
+        0.18,
+        0.19,
+        0.2,
+        0.21,
+        0.22,
+        0.23,
+        0.24,
+        0.25,
+        0.26,
+        0.27,
+        0.28,
+        0.29,
+        0.3,
+        0.31,
+        0.32,
+        0.33,
+        0.34,
+        0.35,
+        0.36,
+        0.37,
+        0.38,
+        0.39,
+        0.4,
+        0.41,
+        0.42,
+        0.43,
+        0.44,
+        0.45,
+        0.46,
+        0.47,
+        0.48,
+        0.49,
+        0.5,
+        0.51,
+        0.52,
+        0.53,
+        0.54,
+        0.55,
+        0.56,
+        0.57,
+        0.58,
+        0.59,
+        0.6,
+        0.61,
+        0.62,
+        0.63,
+        0.64,
+        0.65,
+        0.66,
+        0.67,
+        0.68,
+        0.69,
+        0.7,
+        0.71,
+        0.72,
+        0.73,
+        0.74,
+        0.75,
+        0.76,
+        0.77,
+        0.78,
+        0.79,
+        0.8,
+        0.81,
+        0.82,
+        0.83,
+        0.84,
+        0.85,
+        0.86,
+        0.87,
+        0.88,
+        0.89,
+        0.9,
+        0.91,
+        0.92,
+        0.93,
+        0.94,
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        1.0
+    ],
+    "hyperparameters": {
+        "Decision Tree": [
+            {
+                "max_depth": 3,
+                "min_samples_leaf": 15
+            },
+            {
+                "max_depth": 5,
+                "min_samples_leaf": 15
+            },
+            {
+                "max_depth": 5,
+                "min_samples_leaf": 5
+            },
+            {
+                "max_depth": 8,
+                "min_samples_leaf": 5
+            }
+        ],
+        "MLP": [
+            {
+                "hidden_layer_sizes": [
+                    8
+                ],
+                "alpha": 0.001
+            },
+            {
+                "hidden_layer_sizes": [
+                    8
+                ],
+                "alpha": 0.1
+            },
+            {
+                "hidden_layer_sizes": [
+                    16
+                ],
+                "alpha": 0.001
+            },
+            {
+                "hidden_layer_sizes": [
+                    16
+                ],
+                "alpha": 0.1
+            }
+        ],
+        "Evolutionary": [
+            {
+                "n_pop": 30,
+                "n_iter": 30
+            },
+            {
+                "n_pop": 40,
+                "n_iter": 22
+            }
+        ],
+        "CategoricalNB": [
+            {
+                "alpha": 0.5,
+                "n_bins": 3
+            },
+            {
+                "alpha": 2.0,
+                "n_bins": 3
+            },
+            {
+                "alpha": 0.5,
+                "n_bins": 5
+            },
+            {
+                "alpha": 2.0,
+                "n_bins": 5
+            }
+        ],
+        "KNN": [
+            {
+                "n_neighbors": 7,
+                "weights": "uniform",
+                "p": 1
+            },
+            {
+                "n_neighbors": 7,
+                "weights": "uniform",
+                "p": 2
+            },
+            {
+                "n_neighbors": 7,
+                "weights": "distance",
+                "p": 1
+            },
+            {
+                "n_neighbors": 7,
+                "weights": "distance",
+                "p": 2
+            },
+            {
+                "n_neighbors": 21,
+                "weights": "uniform",
+                "p": 1
+            },
+            {
+                "n_neighbors": 21,
+                "weights": "uniform",
+                "p": 2
+            },
+            {
+                "n_neighbors": 21,
+                "weights": "distance",
+                "p": 1
+            },
+            {
+                "n_neighbors": 21,
+                "weights": "distance",
+                "p": 2
+            }
+        ]
+    },
+    "python_version": "3.13.7",
+    "libraries": {
+        "numpy": "2.3.5",
+        "scikit-learn": "1.8.0",
+        "polars": "1.44.2",
+        "pyBlindOpt": "0.5.0"
+    },
+    "total_time_seconds": 204.54665360006038
+}

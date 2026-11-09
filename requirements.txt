@@ -1,0 +1,9 @@
+polars>=1.30,<2
+numpy>=2.0,<3
+scipy>=1.14,<2
+zstandard>=0.23,<1
+scikit-learn>=1.8,<2
+pyBlindOpt==0.5.0
+matplotlib>=3.9,<4
+seaborn>=0.13,<0.14
+pytest>=8,<10
