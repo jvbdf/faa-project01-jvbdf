@@ -4,8 +4,8 @@
 
 **Student:** João Vitor Ferreira
 **NMEC:** 106078 
-**Course:** Fundamentos de Aprendizagem Automática — University of Aveiro  
-**Project:** Project 1 — The Five Classes of Learners (2026)  
+**Course:** Fundamentos de Aprendizagem Automática (FAA) 
+**Project:** Project 1 — The Five Classes of Learners  
 **Dataset and task:** German Credit : binary classification of credit risk (`good` or `bad`).
 **Date:** 09/11/2026
 **Repo:** https://github.com/jvbdf/faa-project01-jvbdf
@@ -190,7 +190,23 @@ Manhattan metric after preprocessing. Since distance weighting
 was used, closer neighbors have a greater influence on the
 predicted class than more distant ones.
 
+### 2.6. Expected Behaviour of the Learners
 
+The five learners were selected because they use different approaches to learning from data. Based on their characteristics and the exploratory analysis of the German Credit dataset, some differences in their behaviour could be expected.
+
+Table 7 summarises these expectations and how they can be examined using the experimental results.
+
+| Learner | Expected behaviour |
+|---|---|
+| Decision Tree | Increasing tree depth should improve training performance, but deeper trees may overfit and perform worse on validation data. |
+| MLP | A small network with stronger regularisation may be more suitable for a dataset containing only 1,000 observations. |
+| Evolutionary | Directly optimising classification cost may help the linear classifier outperform the constant baselines, although the limited search budget and linear representation could restrict its performance. |
+| CategoricalNB | The large proportion of categorical features may favour this approach, allowing it to achieve a lower cost than the constant baselines despite its independence assumption. |
+| KNN | Similarity between applicants may provide useful information for classification, although performance may vary depending on the training observations and the distance measure. |
+
+*Table 7: Expected behaviour of the five learners based on their learning mechanisms and the characteristics of the German Credit dataset.*
+
+These expectations are examined in Section 5 using the classification results, selected hyperparameters, variation across folds and diagnostic plots. They provide a way to discuss the strengths and limitations of each learning approach rather than comparing the final scores alone.
 
 ## 3. Dataset
 
@@ -199,6 +215,8 @@ predicted class than more distant ones.
 The dataset selected was the **German Credit dataset**, it contains information about credit applicants and if they were classified as good or bad credit risks.
 
 The dataset is stored in `datasets/german_credit.csv.zst` and contains 1,000 observations, 20 input features and one target column named `class`. The original target values are `good` and `bad`, which were converted to 0 and 1, respectively, for the classification task.
+
+The dataset is based on Hofmann, H. (1994), *Statlog (German Credit Data)*, UCI Machine Learning Repository. https://doi.org/10.24432/C5NC77
 
 The input features describe different characteristics of the applicants and their credit history, including account status, loan duration, credit amount, employment, age and housing.
 
@@ -209,7 +227,7 @@ The attributes are divided into two main types:
 | Categorical | 13 | Attributes such as `checking_status`, `credit_history`, `purpose`, `employment` and `housing`. |
 | Numerical | 7 | Attributes such as `duration`, `credit_amount`, `age`, `existing_credits` and `num_dependents`. |
 
-*Table 7: Overview of the input features in the German Credit dataset.*
+*Table 8: Overview of the input features in the German Credit dataset.*
 
 Although seven features are represented numerically, they do not all have the same characteristics. `duration`, `credit_amount` and `age` cover relatively wide ranges, while `installment_commitment`, `residence_since`, `existing_credits` and `num_dependents` take only a few discrete values.
 
@@ -287,16 +305,6 @@ Differences can also be observed in `credit_history`. The `no credits/all paid` 
 
 The observed relationships describe associations within the dataset and do not necessarily imply causation.
 
-For `checking_status`, the differences between categories are substantial. Approximately 49% of applicants with a negative checking account balance belong to the `bad` class. This proportion decreases to about 39% for balances between 0 and 200, and 22% for balances of at least 200.
-
-The `no checking` category has a considerably lower bad credit rate, at approximately 12%.
-
-These results suggest that checking account status is associated with credit risk in this dataset. This is also consistent with the Decision Tree visualisation in Section 2, where `checking_status` appears among the first splitting features.
-
-The `credit_history` attribute also shows differences between categories. However, some categories contain relatively few observations, making their estimated bad credit rates more sensitive to individual cases.
-
-The observed differences indicate associations between the attributes and the target, but they do not establish causal relationships.
-
 ### 3.5. Correlation Analysis
 
 A correlation analysis was performed to examine linear relationships between the numerical features and their association with the target.
@@ -333,18 +341,6 @@ Only numerical features were included in this analysis, since
 assigning arbitrary numerical codes to categorical values
 could produce misleading correlations. No features were
 removed based on these results.
-
-The strongest correlation between numerical input features is observed between `duration` and `credit_amount`, with a coefficient of approximately 0.625. This indicates that larger credit amounts tend to be associated with longer repayment periods.
-
-Regarding the target, `duration` has a positive correlation of approximately 0.215, followed by `credit_amount` at 0.155. The correlation between `age` and the target is approximately -0.091.
-
-These values are relatively low, suggesting that individual numerical features have limited linear relationships with credit risk.
-
-This does not mean that the features are irrelevant. The target may depend on non-linear relationships, interactions between attributes, or information provided by categorical variables.
-
-The analysis was limited to numerical features because assigning arbitrary numeric codes to categorical values could produce misleading Pearson correlations.
-
-No features were removed based on the correlation analysis.
 
 ### 3.6. Main Findings and Dataset Limitations
 
@@ -422,7 +418,7 @@ Within each outer training partition, another `StratifiedKFold` divides the 800 
 
 For each inner iteration, the model is fitted using 600 observations and evaluated using the remaining 200 observations. The process is repeated four times, so each observation in the outer training partition is used for inner validation once.
 
-The sizes and class distributions are summarised in Table 8.
+The sizes and class distributions are summarised in Table 9.
 
 | Partition | Observations | Good | Bad |
 |---|---:|---:|---:|
@@ -432,7 +428,7 @@ The sizes and class distributions are summarised in Table 8.
 | Inner training | 600 | 420 | 180 |
 | Inner validation | 200 | 140 | 60 |
 
-*Table 8: Number of observations and class distribution in the nested cross-validation partitions. The inner partitions are created from the outer training set.*
+*Table 9: Number of observations and class distribution in the nested cross-validation partitions. The inner partitions are created from the outer training set.*
 
 Using four inner folds allows each hyperparameter configuration to be evaluated on different validation partitions rather than relying on only one split.
 
@@ -444,7 +440,7 @@ The outer test results are not used to change hyperparameters or decision thresh
 
 Each learner requires a different representation of the input features. For this reason, preprocessing was implemented as part of each model's scikit-learn `Pipeline`.
 
-The transformations used for each learner are shown in Table 9.
+The transformations used for each learner are shown in Table 10.
 
 | Learner | Categorical features | Numerical features |
 |---|---|---|
@@ -454,7 +450,7 @@ The transformations used for each learner are shown in Table 9.
 | CategoricalNB | Ordinal encoding | Quantile discretisation for selected features; remaining discrete values unchanged |
 | KNN | One-hot encoding | StandardScaler |
 
-*Table 9: Preprocessing applied to each learner before model training.*
+*Table 10: Preprocessing applied to each learner before model training.*
 
 For the Decision Tree, categorical attributes are converted into binary columns using `OneHotEncoder`. Numerical values are passed through without scaling because the tree makes decisions based on feature splits rather than distances.
 
@@ -713,7 +709,7 @@ $$
 
 Across the five learners, 22 configurations were considered. This resulted in 440 inner model fits and 25 outer refits, for a total of 465 fits.
 
-Table 10 shows the number of configurations, model fits and measured execution times.
+Table 11 shows the number of configurations, model fits and measured execution times.
 
 | Learner | Configurations | Model fits | Execution time |
 |---|---:|---:|---:|
@@ -724,7 +720,7 @@ Table 10 shows the number of configurations, model fits and measured execution t
 | KNN | 8 | 165 | 9.39 s |
 | **Total** | **22** | **465** | **203.34 s** |
 
-*Table 10: Number of evaluated hyperparameter configurations, total model fits and measured execution time across the five outer folds. Times are rounded individually; the total was calculated before rounding.*
+*Table 11: Number of evaluated hyperparameter configurations, total model fits and measured execution time across the five outer folds. Times are rounded individually; the total was calculated before rounding.*
 
 The threshold search does not require additional model fits. It reuses the out-of-fold probabilities already obtained during inner cross-validation.
 
@@ -736,9 +732,9 @@ The complete timed part of the experiment took **204.55 seconds**, including bas
 
 These times describe the recorded execution and may vary depending on the hardware, Python environment and library versions.
 
-#### Reproducibility
+### 4.9. Reproducibility
 
-The experiment was executed with the following recorded environment:
+The experiment was implemented in Python and uses fixed random seeds to make the results reproducible. The recorded execution environment is shown in Table 12.
 
 | Component | Version |
 |---|---|
@@ -748,27 +744,96 @@ The experiment was executed with the following recorded environment:
 | Polars | 1.44.2 |
 | pyBlindOpt | 0.5.0 |
 
-*Table 11: Python and library versions recorded during the experimental run.*
+*Table 12: Python and library versions recorded during the experiment.*
 
-The hyperparameter search spaces and random seed are defined in `src/config.py`. The evaluation procedure is implemented in `src/experiment.py`, while the preprocessing pipelines and classification metrics are implemented in `src/preprocessing.py` and `src/evaluation.py`.
+The dependencies are listed in `requirements.txt`. The hyperparameter search spaces and random seed are defined in `src/config.py`, while the training and evaluation procedures are implemented in the `src/` directory.
 
-The experiment can be executed from the project root using:
+**Running the experiment**
 
-```bash
+The following commands can be executed from the project root. On Windows, a Python virtual environment can be created and activated using PowerShell:
+
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+The complete experiment can then be executed using:
+
+```powershell
 python main.py
 ```
 
-The recorded results are saved in the `results/` directory:
+This runs the five learners and the two baselines using Nested Stratified Cross-Validation. The models are evaluated using the same outer folds, with the random seed fixed at `106078`.
 
-- `fold_results.csv`: selected hyperparameters, thresholds, inner costs, outer evaluation metrics and execution times for each fold.
-- `model_summary.csv`: mean and sample standard deviation of each evaluation metric.
-- `predictions.csv`: outer test predictions, actual classes, observation indices, probabilities and selected thresholds when available.
-- `baselines.csv`: evaluation metrics for Always Good and Always Bad in each outer fold.
-- `experiment_config.json`: random seed, cross-validation settings, classification costs, hyperparameter configurations and recorded software versions.
+The recorded execution took approximately 204.55 seconds. Execution time may vary depending on the computer and installed libraries.
 
-The saved predictions allow the classification metrics and confusion matrices to be recalculated without retraining the models.
+**Generated results**
 
-The experiment was designed to run on a standard computer in a few minutes, while keeping all model selection procedures separate from the final outer test evaluation.
+The main experiment saves the first five files below in the `results/` directory. The paired comparison script produces the last file:
+
+| File | Contents |
+|---|---|
+| `fold_results.csv` | Selected hyperparameters, thresholds, metrics and execution times for each outer fold |
+| `model_summary.csv` | Mean and sample standard deviation of the evaluation metrics |
+| `predictions.csv` | Actual classes and predictions for each outer test observation |
+| `baselines.csv` | Performance of Always Good and Always Bad on each outer fold |
+| `experiment_config.json` | Random seed, cross-validation settings, hyperparameter search spaces and library versions |
+| `paired_fold_differences.csv` | Paired classification cost differences between the learners and CategoricalNB |
+
+The saved results allow the reported costs, confusion matrices and other evaluation metrics to be checked without training the models again.
+
+
+**Paired comparison**
+
+The paired analysis can be reproduced using the saved outer-fold results and predictions:
+
+```powershell
+python -m tests.paired_analysis
+```
+
+The script compares classification costs on the same outer folds and examines the predictions where CategoricalNB and KNN disagree. It also saves the fold-level cost differences in `results/paired_fold_differences.csv`.
+
+This analysis uses the existing experimental results and does not require retraining the models.
+
+
+**Generating the figures**
+
+The figures used in the report can be regenerated using the scripts provided in the `tests/` directory:
+
+```powershell
+python -m tests.plot_results
+python -m tests.plot_dataset_figures
+python -m tests.plot_model_explanations
+python -m tests.section5_plots
+```
+
+These scripts generate the exploratory plots, learner visualisations, model comparisons, confusion matrices and additional diagnostic figures.
+
+The CategoricalNB calibration plot can also be regenerated using:
+
+```powershell
+python -m tests.check_bayesian
+python -m tests.check_calibration
+```
+
+The first command generates the CategoricalNB predictions required by the calibration script. This is a separate diagnostic run and does not modify the official results of the five learners.
+
+Most figures are saved in `results/figures/`. The calibration plot is saved as `results/bayesian_calibration.png`.
+
+The experimental pipeline diagram (`results/figures/pipeline.png`) is included directly in the repository.
+
+**Running the tests**
+
+The automated tests can be executed using:
+
+```powershell
+python -m pytest tests/ -v
+```
+
+These tests are intended to verify the main evaluation functions, data preprocessing and experimental procedures.
+
+The experiment uses fixed seeds, but minor differences in execution time and numerical results may occur across hardware or library environments. The reported results correspond to the recorded execution and the configuration saved in `results/experiment_config.json`.
 
 
 ## 5. Evaluation and Conclusion
@@ -781,7 +846,7 @@ The results are then discussed in relation to the characteristics of the dataset
 
 ### 5.1. Overall Performance Comparison
 
-Table 12 presents the average performance of the five learners and the two constant baselines across the five outer folds.
+Table 13 presents the average performance of the five learners and the two constant baselines across the five outer folds.
 
 The classification cost is reported as mean ± sample standard deviation. The remaining metrics are presented as their mean values across the folds.
 
@@ -795,7 +860,7 @@ The classification cost is reported as mean ± sample standard deviation. The re
 | Always Bad | 0.700 ± 0.000 | 0.231 | 0.300 | 1.000 | 0.300 |
 | Always Good | 1.500 ± 0.000 | 0.412 | 0.000 | 0.000 | 0.700 |
 
-*Table 12: Mean performance of the five learners and two baselines across the outer folds. Bold values indicate the best result among the five learners for each metric. Lower classification cost is better.*
+*Table 13: Mean performance of the five learners and two baselines across the outer folds. Bold values indicate the best result among the five learners for each metric. Lower classification cost is better.*
 
 ![Comparison of learner costs and baselines](results/figures/model_comparison.png)
 
@@ -821,7 +886,7 @@ These results show why the choice of evaluation metric matters. In this problem,
 
 The mean results provide an overall comparison, but they do not show how the learners behaved on the individual test partitions.
 
-Table 13 presents the classification cost obtained by each learner in the five outer folds.
+Table 14 presents the classification cost obtained by each learner in the five outer folds.
 
 | Outer Fold | Decision Tree | MLP | Evolutionary | CategoricalNB | KNN |
 |---|---:|---:|---:|---:|---:|
@@ -831,7 +896,7 @@ Table 13 presents the classification cost obtained by each learner in the five o
 | 4 | 0.660 | 0.645 | 0.840 | **0.565** | 0.595 |
 | 5 | 0.535 | 0.545 | 0.560 | 0.475 | **0.375** |
 
-*Table 13: Classification cost obtained by each learner on the five outer test folds. Bold values indicate the lowest cost within each fold.*
+*Table 14: Classification cost obtained by each learner on the five outer test folds. Bold values indicate the lowest cost within each fold.*
 
 ![Classification cost by outer fold](results/figures/outer_fold_costs.png)
 
@@ -857,6 +922,45 @@ The five outer folds also share overlapping training data. Their results should 
 
 For this reason, the difference of 0.028 between the mean costs of CategoricalNB and KNN is not enough to establish that CategoricalNB would always perform better on new data.
 
+
+#### Paired Comparison of the Learners
+
+Since all five learners were evaluated on the same outer test folds, their classification costs can also be compared directly within each fold.
+
+CategoricalNB was used as the reference because it obtained the lowest mean classification cost. For each learner, the difference was calculated by subtracting the CategoricalNB cost from its cost on the same fold.
+
+A positive difference means that CategoricalNB had a lower cost, while a negative difference means that the other learner performed better.
+
+| Learner compared with CategoricalNB | Mean difference | SD of differences | Folds with lower cost than NB |
+|---|---:|---:|---:|
+| KNN | +0.028 | 0.136 | 2/5 |
+| MLP | +0.055 | 0.054 | 1/5 |
+| Decision Tree | +0.074 | 0.084 | 1/5 |
+| Evolutionary | +0.158 | 0.071 | 0/5 |
+
+*Table 15: Paired differences in classification cost relative to CategoricalNB. The mean and sample standard deviation were calculated from the five fold-level differences.*
+
+The paired comparison confirms that CategoricalNB had the lowest average cost, but the differences were not consistent across all folds.
+
+For example, KNN performed better than CategoricalNB in two of the five folds. Its mean difference was only 0.028, while the standard deviation of the paired differences was 0.136.
+
+This shows that the advantage of CategoricalNB over KNN was not equally strong across the test partitions.
+
+A further comparison was made using the 1,000 saved outer test predictions from both learners. CategoricalNB and KNN disagreed on 190 observations.
+
+KNN correctly classified 107 observations that CategoricalNB classified incorrectly. However, it also incorrectly classified 83 observations that CategoricalNB predicted correctly.
+
+Although KNN made more correct predictions in these disagreements, the types of errors were different. Compared with CategoricalNB, KNN corrected 97 errors involving good credit risks and 10 involving bad credit risks, but introduced 60 errors involving good credit risks and 23 involving bad credit risks.
+
+Considering the classification costs, the corrected errors saved 147 cost units, while the additional errors introduced 175 units. This resulted in a net increase of 28 cost units for KNN, corresponding to the difference of 0.028 in mean cost.
+
+This helps explain why KNN achieved higher Accuracy and Macro-F1, while CategoricalNB obtained a lower classification cost.
+
+However, the five outer folds share overlapping training observations. The standard deviation of the paired differences should therefore not be interpreted as a confidence interval or used alone to establish statistical significance.
+
+The results support CategoricalNB as the lowest-cost learner in this experiment, but do not establish that it is generally superior to the other algorithms.
+
+
 ### 5.3. Classification Errors and Their Costs
 
 To understand the classification costs, it is necessary to examine the types of errors made by each learner.
@@ -869,7 +973,7 @@ Each observation was predicted once by a model that had not been trained on that
 
 *Figure 14: Confusion matrices obtained from the combined outer test predictions of the five learners. Rows represent actual classes and columns represent predicted classes.*
 
-The corresponding values are presented in Table 14.
+The corresponding values are presented in Table 16.
 
 | Learner | TN | FP | FN | TP |
 |---|---:|---:|---:|---:|
@@ -879,7 +983,7 @@ The corresponding values are presented in Table 14.
 | **CategoricalNB** | 278 | 422 | **25** | **275** |
 | KNN | **315** | **385** | 38 | 262 |
 
-*Table 14: Combined confusion matrix counts from the five outer test folds. TN and TP represent correct predictions, while FP and FN represent the two types of classification errors.*
+*Table 16: Combined confusion matrix counts from the five outer test folds. TN and TP represent correct predictions, while FP and FN represent the two types of classification errors.*
 
 CategoricalNB correctly identified 275 of the 300 bad credit risks, missing only 25. This explains its high Recall of approximately 91.7%.
 
@@ -1153,7 +1257,7 @@ These characteristics may help explain the observed variation, but the experimen
 
 Overall, KNN provided competitive results, particularly on the secondary metrics, but was less consistent than CategoricalNB under the primary classification cost.
 
-### 5.7. Initial Expectations and Main Findings
+### 5.7. Expected Behaviour and Main Findings
 
 The learner choices in Section 2 were based on their different approaches to learning and their expected suitability for German Credit.
 
@@ -1165,7 +1269,7 @@ The results allow these expectations to be discussed.
 
 **Decision Tree and MLP** were selected partly because they can represent non-linear relationships and interactions between attributes. Both improved on the Always Bad baseline, but their additional flexibility did not produce the lowest mean cost. The Decision Tree validation curve also suggests that increasing complexity can lead to overfitting.
 
-**Differential Evolution** was selected to test evolutionary learning as an alternative optimisation approach. The algorithm successfully learned the parameters of a classifier through evolutionary search, but the resulting mean cost was slightly worse than the Always Bad baseline.
+**Differential Evolution** was selected to test evolutionary learning as an alternative optimisation approach. The algorithm successfully learned the parameters of a classifier through evolutionary search, but the resulting mean cost was slightly worse than the Always Bad baseline. The expectation that direct cost optimisation could outperform the constant baselines was therefore not supported by the outer test results.
 
 Together, these results suggest that a more flexible model or a more computationally expensive training procedure does not necessarily provide better performance.
 
@@ -1224,90 +1328,3 @@ For this experiment, the relatively simple CategoricalNB provided the best balan
 
 The main conclusion is that **the most complex or computationally expensive learner is not necessarily the most appropriate one**. Understanding how each learner uses the data, and which errors it makes, is more informative than comparing their final scores alone.
 
-## 6. Reproducibility
-
-The experiment was implemented in Python and uses fixed random seeds to make the results reproducible. The recorded execution environment is shown in Table 11.
-
-| Component | Version |
-|---|---|
-| Python | 3.13.7 |
-| NumPy | 2.3.5 |
-| scikit-learn | 1.8.0 |
-| Polars | 1.44.2 |
-| pyBlindOpt | 0.5.0 |
-
-*Table 11: Python and library versions recorded during the experiment.*
-
-The dependencies are listed in `requirements.txt`. The hyperparameter search spaces and random seed are defined in `src/config.py`, while the training and evaluation procedures are implemented in the `src/` directory.
-
-**Running the experiment**
-
-The following commands can be executed from the project root. On Windows, a Python virtual environment can be created and activated using PowerShell:
-
-```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-```
-
-The complete experiment can then be executed using:
-
-```powershell
-python main.py
-```
-
-This runs the five learners and the two baselines using Nested Stratified Cross-Validation. The models are evaluated using the same outer folds, with the random seed fixed at `106078`.
-
-The recorded execution took approximately 204.55 seconds. Execution time may vary depending on the computer and installed libraries.
-
-**Generated results**
-
-The experiment saves the following files in the `results/` directory:
-
-| File | Contents |
-|---|---|
-| `fold_results.csv` | Selected hyperparameters, thresholds, metrics and execution times for each outer fold |
-| `model_summary.csv` | Mean and sample standard deviation of the evaluation metrics |
-| `predictions.csv` | Actual classes and predictions for each outer test observation |
-| `baselines.csv` | Performance of Always Good and Always Bad on each outer fold |
-| `experiment_config.json` | Random seed, cross-validation settings, hyperparameter search spaces and library versions |
-
-The saved results allow the reported costs, confusion matrices and other evaluation metrics to be checked without training the models again.
-
-**Generating the figures**
-
-The figures used in the report can be regenerated using the scripts provided in the `tests/` directory:
-
-```powershell
-python -m tests.plot_results
-python -m tests.plot_dataset_figures
-python -m tests.plot_model_explanations
-python -m tests.section5_plots
-```
-
-These scripts generate the exploratory plots, learner visualisations, model comparisons, confusion matrices and additional diagnostic figures.
-
-The CategoricalNB calibration plot can also be regenerated using:
-
-```powershell
-python -m tests.check_bayesian
-python -m tests.check_calibration
-```
-
-The first command generates the CategoricalNB predictions required by the calibration script. This is a separate diagnostic run and does not modify the official results of the five learners.
-
-Most figures are saved in `results/figures/`. The calibration plot is saved as `results/bayesian_calibration.png`.
-
-The experimental pipeline diagram (`results/figures/pipeline.png`) is included directly in the repository.
-
-**Running the tests**
-
-The automated tests can be executed using:
-
-```powershell
-python -m pytest tests/ -v
-```
-
-These tests are intended to verify the main evaluation functions, data preprocessing and experimental procedures.
-
-The experiment uses fixed seeds, but minor differences in execution time and numerical results may occur across hardware or library environments. The reported results correspond to the recorded execution and the configuration saved in `results/experiment_config.json`.
